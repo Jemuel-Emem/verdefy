@@ -28,12 +28,12 @@ class IndexContent extends Component
             $product = pro::find($id);
 
         if ($product) {
-            // Check if the user is authenticated
+
             if (auth()->check()) {
                 $user = auth()->user();
 
                 carts::create([
-                    'user_id'      => $user->id, // Associate the cart entry with the user
+                    'user_id'      => $user->id,
                     'productname'  => $product->productname,
                     'productprice' => $product->productprice,
                     'photo'        => $product->photo,
@@ -47,7 +47,7 @@ class IndexContent extends Component
                     'icon'        => 'success',
                 ]);
             } else {
-                // Handle the case where the user is not authenticated (optional)
+
             }
        }
     }

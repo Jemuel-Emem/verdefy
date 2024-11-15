@@ -16,6 +16,9 @@ class Products extends Model
         'photo',
 
     ];
-
+    public function comments()
+    {
+        return $this->hasMany(comments::class, 'order_id');
+    }
 
 }
