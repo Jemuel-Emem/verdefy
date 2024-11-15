@@ -1,6 +1,6 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 
 use App\Http\Controllers\UnreadMessageController;
@@ -20,19 +20,17 @@ $unreadMessageCount = $unreadMessageController->getUnreadMessageCount(request())
 */
 
 Route::view('/', 'welcome');
-Route::middleware([])->group(function () {
+
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/darbs', function () {
-        if (auth()->check()) {
-            if (auth()->user()->is_admin == true) {
-                return redirect()->route('admin-dashboard');
-            } else {
-                return redirect()->route('user-dashboard');
-            }
+        if (Auth::user()->is_admin) {
+            return redirect()->route('admin-dashboard');
         } else {
-            return redirect()->route('login');
+            return redirect()->route('user-dashboard');
         }
     })->name('userdashboard');
 });
+
 Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/ds', function () {
         return view('admin.main');
@@ -93,6 +91,7 @@ Route::prefix('user')->middleware('user')->group(function () {
     })->name('terms');
 
 });
+
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])

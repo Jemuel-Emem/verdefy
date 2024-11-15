@@ -22,9 +22,9 @@
 
             <div class="absolute w-full flex flex-col mt-20">
                 <div class="flex justify-center">
-                    <div >
+                    <div class="bg-white mb-4 rounded-md">
                         <a href="/" wire:navigate>
-                            <img src="{{ asset('images/cosmetics.png') }}" alt="" class="w-32 h-32 fill-current text-gray-500 mb-2" >
+                            <img src="{{ asset('images/ver.png') }}" alt="" class="w-32 h-32 fill-current text-gray-500 mb-2" >
                         </a>
                     </div>
                 </div>

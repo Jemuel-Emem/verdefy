@@ -34,7 +34,7 @@ new #[Layout('layouts.guest')] class extends Component
         $validated['password'] = Hash::make($validated['password']);
 
         event(new Registered($user = User::create($validated)));
-
+        $user->sendEmailVerificationNotification();
         Auth::login($user);
 
         $this->redirect(RouteServiceProvider::HOME, navigate: true);
