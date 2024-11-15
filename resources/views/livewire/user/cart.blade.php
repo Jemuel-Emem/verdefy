@@ -1,75 +1,94 @@
-<div class="p-12 h-screen">
-    <div class="grid md:grid-cols-1 grid-col-1 gap-4 relative">
-       <div class="flex justify-end">
-
-        <button wire:click="calculateTotalPrice"><span class="text-right underline text-green-500 hover:text-green-600">View Summary</span></button>
-       </div>
-        @foreach($product as $cot)
-            <x-card title="{{ $cot->productname }}" class="w-80 text-amber-700 ">
-                <div class="">
-                    <img src="{{ asset(Storage::url($cot->photo)) }}" alt="Valid ID" class="ml-12 w-52 h-32 rounded">
-                    <x-inputs.number wire:model="quantities.{{ $cot->id }}" label="Item Quantity" />
-                     <a href="{{ route('terms') }}" class="text-green-500 underline">Terms and Condition</a>
-                </div>
-
-
-                <x-slot name="footer">
-                    <div class="flex justify-between items-center">
-                        <label for="" class="text-amber-700">{{ $cot->productprice }} Php</label>
-                        <div>
-                            <div x-data="{ title: 'Sure Delete?' }">
-                                <x-button label="Delete" danger
-                                    x-on:confirm="{
-                                        title,
-                                        icon: 'warning',
-                                        method: 'delete',
-                                        params: {{ $cot->id }}
-                                    }"
-                                />
-                            </div>
-
-                        </div>
-                    </div>
-                    <x-checkbox id="checkbox_{{ $cot->id }}" wire:model="selectedProducts.{{ $cot->id }}" />
-
-                    </x-slot>
-            </x-card>
-        @endforeach
-
+<div class="p-12 min-h-screen bg-gray-50">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-700">Your Cart</h1>
+        <button wire:click="calculateTotalPrice"
+                class="text-blue-600 hover:text-blue-700 underline">
+            View Summary
+        </button>
     </div>
 
-
-
-    <x-modal wire:model.defer="open_modal">
-        <x-card title="Your Order" class="relative">
-        @if(count($selectedProductList) > 0)
-        <h2 class="text-xl font-bold">Order List:</h2>
-        <ul >
-        @foreach($selectedProductList as $selectedProduct)
-        <img class="w-60 h-28 rounded" src="{{ asset('storage/' . $selectedProduct->photo) }}" alt="{{ $selectedProduct->productname }}" >
-            <li>{{ $selectedProduct->productname }} - <span class="text-red-700">Php{{ $selectedProduct->productprice }}</span>
-               </li>
-
-        @endforeach
-       </ul>
-       @else
-        <p>No products selected.</p>
-        @endif
-
-            <x-checkbox id="left-label" class=" font-serif" label="Please check this checkbox if you already read the terms and condition" wire:model="agree" wire:click="toggleAgree" />
-            <div class="space-y-3 ">
-                <p class="md:text-2xl text-xl text-yellow-800">Total Price: {{ $totalPrice }} Php</p>
+    <!-- Products Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @foreach($product as $cot)
+        <x-card title="{{ $cot->productname }}" class="text-blue-800 shadow-lg rounded-lg border border-gray-200">
+            <!-- Product Image and Quantity -->
+            <div class="flex flex-col items-center">
+                <img src="{{ asset(Storage::url($cot->photo)) }}"
+                     alt="Product Image"
+                     class="w-full h-48 object-cover rounded mb-4 shadow-md">
+                <x-inputs.number wire:model="quantities.{{ $cot->id }}"
+                                 label="Item Quantity"
+                                 class="w-3/4" />
             </div>
+
+
             <x-slot name="footer">
-                <div class="flex justify-end gap-x-4">
-                    <x-button flat label="Cancel" x-on:click="close" />
+                <div class="flex justify-between items-center mt-4">
+                    <span class="text-lg text-yellow-500 font-semibold">{{ $cot->productprice }} Php</span>
+                    <div x-data="{ title: 'Sure Delete?' }">
+                        <x-button label="Delete" danger
+                                  x-on:confirm="{
+                                      title,
+                                      icon: 'warning',
+                                      method: 'delete',
+                                      params: {{ $cot->id }}
+                                  }"
+                                  class="ml-4 bg-red-500 hover:bg-red-600 text-white" />
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <x-checkbox id="checkbox_{{ $cot->id }}"
+                                wire:model="selectedProducts.{{ $cot->id }}"
+                                class="mr-2" />
+                    <label for="checkbox_{{ $cot->id }}" class="text-gray-600">Select Product</label>
+                </div>
+            </x-slot>
+        </x-card>
+        @endforeach
+    </div>
 
-                    <x-button class="bg-amber-900 hover:bg-amber-950 text-white" label="Place Order" wire:click="ordernow" />
+    <!-- Order Summary Modal -->
+    <x-modal wire:model.defer="open_modal">
+        <x-card title="Your Order Summary" class="relative shadow-lg bg-white rounded-lg">
+            @if(count($selectedProductList) > 0)
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Order List</h2>
+                <ul class="space-y-4">
+                    @foreach($selectedProductList as $selectedProduct)
+                    <li class="flex items-center">
+                        <img src="{{ asset('storage/' . $selectedProduct->photo) }}"
+                             alt="{{ $selectedProduct->productname }}"
+                             class="w-20 h-20 object-cover rounded mr-4">
+                        <span class="text-gray-700">{{ $selectedProduct->productname }} -
+                            <span class="text-teal-600 font-semibold">Php {{ $selectedProduct->productprice }}</span>
+                        </span>
+                    </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-center text-gray-500">No products selected.</p>
+            @endif
 
+
+            <div class="mt-6 space-y-3">
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-blue-800">Total Price: {{ $totalPrice }} Php</p>
+                </div>
+
+            </div>
+
+
+            <x-slot name="footer">
+                <div class="flex justify-end gap-x-4 mt-6">
+                    <x-button flat label="Cancel" x-on:click="close"
+                              class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg" />
+                    <x-button wire:click="ordernow"
+                              class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-lg transition duration-300"
+                              >
+                        Place Order
+                    </x-button>
                 </div>
             </x-slot>
         </x-card>
     </x-modal>
-</div>
-
 </div>

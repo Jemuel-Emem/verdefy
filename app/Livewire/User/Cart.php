@@ -15,7 +15,7 @@ class Cart extends Component
     use WithPagination;
     use Actions;
     use WithFileUploads;
-    public $agree = false;
+
     public $open_modal = false;
     public $selectedProducts = [];
     public $selectedProductList = [];
@@ -51,7 +51,7 @@ class Cart extends Component
     return view('livewire.user.cart', [
         'product' => $userCarts,
         'totalcart' => $totalcart,
-        'agree' => $this->agree,
+
     ]);
     }
     public function toggleAgree()
@@ -137,30 +137,8 @@ class Cart extends Component
     }
 
     public function ordernow(){
-//         $this->validate();
-//      $selectedProductList = $this->getSelectedProducts();
-//     $totalPrice = $this->calculateTotalPrice($selectedProductList);
 
-//     Order::create([
-//         'user_id'=> auth()->user()->id,
-//         'name' => auth()->user()->name,
-//         'address' => auth()->user()->address,
-//         'phonenumber' => auth()->user()->phonenumber,
-//         'productlist' => json_encode($selectedProductList, JSON_UNESCAPED_UNICODE),
-//         'totalorder' => $totalPrice,
-//     ]);
 
-//     $this->deleteSelectedProducts();
-//     $this->resetSelectedProducts();
-//     $this->resetTotalPrice();
-//     $this->dialog()->show([
-//         'title'       => 'Order ',
-//         'description' => 'Your order was successfully process',
-//         'icon'        => 'success'
-//     ]);
-//    $this->open_modal=false;
-
-$this->validate();
     $selectedProductList = $this->getSelectedProducts();
     $totalPrice = $this->calculateTotalPrice($selectedProductList);
 

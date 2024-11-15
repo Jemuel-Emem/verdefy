@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             'avatar' => 'logo.png',
          'password' => bcrypt('password'),
             'is_admin' => true,
+            'email_verified_at' => now(),
         ]);
     }
 }

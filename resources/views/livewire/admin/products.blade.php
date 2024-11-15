@@ -7,7 +7,7 @@
         <x-button  label="Search " wire:click.prevent="asss" green />
     </div>
 
-    <button class="bg-amber-900 text-white hover:bg-amber-950 w-36 rounded"  wire:click="add">Add Product </button>
+    <button class="bg-green-500 text-white hover:bg-green-600 w-36 rounded"  wire:click="add">Add Product </button>
     </div>
     <div class="relative overflow-x-auto mt-4  flex justify-center w-screen" id="printContent" >
         <table class=" text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 w-screen p-4">
@@ -124,7 +124,7 @@
             <x-slot name="footer">
                 <div class="flex justify-end gap-x-4">
                     <x-button flat label="Cancel" x-on:click="close"  wire:click="back"/>
-                    <x-button class="bg-amber-900 hover:bg-amber-950 text-white" label="Submit" wire:click="submit" spinner="submit" />
+                    <x-button class="bg-green-500 hover:bg-green-600 text-white" label="Submit" wire:click="submit" spinner="submit" />
                 </div>
             </x-slot>
         </x-card>

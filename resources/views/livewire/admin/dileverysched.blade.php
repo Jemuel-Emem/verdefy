@@ -63,7 +63,7 @@
                         <td class="px-6 py-4 font-medium whitespace-nowrap dark:text-white "
                         @if($cot->status == 'Pending') style="color: orange"
 
-                        @elseif($cot->status == 'Done') style="color: green"
+                        @elseif($cot->status == 'To Deliver') style="color: green"
                         @endif>
                         {{ $cot->status }}
                     </td>
@@ -71,7 +71,7 @@
 
                         <td class="px-6 py-4 ">
                           <span>
-                            <button class="text-white hover:bg-yellow-900 bg-yellow-800 rounded p-2 w-32" wire:click="editSchedule({{ $cot->id }})">modify</button>
+                            <button class="text-white hover:bg-green-600 bg-green-500 rounded p-2 w-32" wire:click="editSchedule({{ $cot->id }})">modify</button>
                           </span>
                         </td>
 
@@ -102,7 +102,7 @@
                         <x-native-select label="Select Status" wire:model.defer="status">
                             <option>Active</option>
                             <option>Pending</option>
-                            <option>Done</option>
+                            <option>To Deliver </option>
                         </x-native-select>
                         <x-datetime-picker
                         without-time
@@ -116,7 +116,7 @@
                 <x-slot name="footer">
                     <div class="flex justify-end gap-x-4">
                         <x-button flat label="Cancel" x-on:click="close"  />
-                        <x-button class="bg-amber-900 hover:bg-amber-950 text-white" label="Set" wire:click="update" spinner="Set" />
+                        <x-button class="bg-green-500 hover:bg-green-600 text-white" label="Set" wire:click="update"  />
                     </div>
                 </x-slot>
             </x-card>
