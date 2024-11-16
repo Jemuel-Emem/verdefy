@@ -48,6 +48,15 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
 
+    protected $table = 'users';
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function carts()
     {
         return $this->hasMany(Cart::class);
@@ -57,4 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Deliverysched::class);
     }
+
+
+
 }

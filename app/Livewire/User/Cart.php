@@ -21,15 +21,19 @@ class Cart extends Component
     public $selectedProductList = [];
     public $search, $totalPrice;
     public $quantities = [];
+    public  $order_id;
 
     public function mount()
     {
-        $this->updatedSelectedProducts();
-        $products = carts::all();
-        foreach ($products as $product) {
-            $this->quantities[$product->id] = 1;
+        $user = auth()->user();
+        if ($user) {
+            $cartItems = carts::where('user_id', $user->id)->get();
+            foreach ($cartItems as $cartItem) {
+                $this->quantities[$cartItem->product_id] = $cartItem->quantity;
+            }
         }
     }
+
     protected $rules = [
         'agree' => 'accepted',
     ];
@@ -38,22 +42,63 @@ class Cart extends Component
     {
         $user = auth()->user();
 
-    // Ensure a user is authenticated
-    if (!$user) {
-        return redirect()->route('login');
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $userCarts = carts::where('user_id', $user->id)
+                          ->with('product')
+                          ->paginate(12);
+
+        return view('livewire.user.cart', [
+            'carts' => $userCarts,
+            'totalcart' => $userCarts->count(),
+        ]);
     }
 
-    $totalcart = $this->getTotalCart();
-    $userCarts = carts::where('user_id', $user->id)
-                      ->where('productname', 'like', '%' . $this->search . '%')
-                      ->paginate(12);
+    public function calculateTotalPrice()
+    {
+        $totalPrice = 0;
+        $this->selectedProductList = [];
 
-    return view('livewire.user.cart', [
-        'product' => $userCarts,
-        'totalcart' => $totalcart,
+        // Fetch cart items for the authenticated user with their related product details
+        $cartItems = carts::where('user_id', auth()->id())
+                          ->with('product')
+                          ->get();
 
-    ]);
+        // Loop through the cart items and check if they are selected
+        foreach ($cartItems as $cartItem) {
+            // Check if the product is selected
+            if (isset($this->selectedProducts[$cartItem->id]) && $this->selectedProducts[$cartItem->id]) {
+                // Add product price multiplied by quantity to the total price
+                $totalPrice += $cartItem->product->productprice * $this->quantities[$cartItem->id];
+
+
+                $this->selectedProductList[] = [
+                    'productname' => $cartItem->product->productname,
+                    'productprice' => $cartItem->product->productprice,
+                    'quantity' => $this->quantities[$cartItem->id],
+                    'photo' => $cartItem->product->photo,
+                ];
+            }
+        }
+
+
+        $this->totalPrice = $totalPrice;
+
+
+        if (!empty($this->selectedProductList)) {
+            $this->open_modal = true;
+        } else {
+            $this->dialog()->show([
+                'title' => 'No Products Selected',
+                'description' => 'Please select products before viewing the summary.',
+                'icon' => 'warning',
+            ]);
+        }
     }
+
+
     public function toggleAgree()
     {
         $this->validateOnly('agree');
@@ -72,36 +117,9 @@ class Cart extends Component
 
     public function back()
     {
-        // Handle back action if needed
+
     }
 
-    public function calculateTotalPrice()
-    {
-        $this->open_modal = false;
-        $totalPrice = 0;
-
-        // Clear the selected product list
-        $this->selectedProductList = [];
-
-        $products = carts::all();
-
-        foreach ($this->selectedProducts as $productId => $isSelected) {
-            if ($isSelected) {
-                $product = $products->find($productId);
-
-                // Ensure the product with the given ID exists
-                if ($product) {
-                    $totalPrice += $product->productprice * $this->quantities[$productId];
-                    $this->open_modal = true;
-                    $this->selectedProductList[] = $product;
-                }
-            }
-        }
-
-        $this->totalPrice = $totalPrice; // Update total price property
-
-        return $totalPrice;
-    }
 
     public function updatedSelectedProducts()
     {
@@ -110,19 +128,33 @@ class Cart extends Component
 
     public function delete($id)
     {
+
         $cartItem = carts::find($id);
+
+
         if ($cartItem) {
             $cartItem->delete();
 
-            $this->dialog([
-                'title' => 'Deleted from cart',
-                'description' => 'The product was removed from the cart',
-                'icon' => 'error'
+
+            $this->dialog()->show([
+                'title'       => 'Item Deleted',
+                'description' => 'The product has been successfully removed from your cart.',
+                'icon'        => 'success'
             ]);
 
+
             $this->resetPage();
+            $this->mount();
+        } else {
+
+            $this->dialog()->show([
+                'title'       => 'Error',
+                'description' => 'Item not found. Please try again.',
+                'icon'        => 'error'
+            ]);
         }
     }
+
 
     public function addQuantity($productId)
     {
@@ -136,46 +168,85 @@ class Cart extends Component
         $this->calculateTotalPrice();
     }
 
-    public function ordernow(){
+    public function ordernow()
+    {
+        $user = auth()->user();
 
+        if (!$user) {
+            $this->dialog()->show([
+                'title' => 'Error',
+                'description' => 'User not authenticated',
+                'icon' => 'error'
+            ]);
+            return;
+        }
 
-    $selectedProductList = $this->getSelectedProducts();
-    $totalPrice = $this->calculateTotalPrice($selectedProductList);
+        // Check if `order_id` is already set, if not generate a new one.
+        if (!$this->order_id) {
+            $this->order_id = uniqid('order_');  // Generate a unique order_id
+        }
 
-    Order::create([
-        'user_id'=> auth()->user()->id,
-        'name' => auth()->user()->name,
-        'address' => auth()->user()->address,
-        'phonenumber' => auth()->user()->phonenumber,
-        'productlist' => implode(', ', $selectedProductList),
-        'totalorder' => $totalPrice,
-    ]);
+        // Get the selected products
+        $selectedProductList = $this->getSelectedProducts();
 
-    $this->deleteSelectedProducts();
-    $this->resetSelectedProducts();
-    $this->resetTotalPrice();
-    $this->dialog()->show([
-        'title'       => 'Order ',
-        'description' => 'Your order was successfully processed',
-        'icon'        => 'success'
-    ]);
-    $this->open_modal = false;
+        // Loop through the selected products and create orders
+        foreach ($selectedProductList as $cartItem) {
+            if ($cartItem && isset($this->quantities[$cartItem->id])) {
+                // Create an order for each selected product
+                order::create([
+                    'user_id' => $user->id,
+                    'product_id' => $cartItem->product->id,
+                    'totalorder' => $cartItem->product->productprice * $this->quantities[$cartItem->id],
+                    'quantity' => $this->quantities[$cartItem->id],
+                    'order_id' => $this->order_id, // Use the same order_id for all items
+                ]);
+            } else {
+                $this->dialog()->show([
+                    'title' => 'Error',
+                    'description' => 'Product not found in cart',
+                    'icon' => 'error'
+                ]);
+            }
+        }
+
+        // After order creation, delete selected products from the cart
+        $this->deleteSelectedProducts();
+        $this->resetSelectedProducts();
+        $this->resetTotalPrice();
+
+        // Show success dialog
+        $this->dialog()->show([
+            'title' => 'Order Successful',
+            'description' => 'Your order was successfully processed!',
+            'icon' => 'success'
+        ]);
+
+        // Close the modal after the order
+        $this->open_modal = false;
     }
+
+
+
     protected function getSelectedProducts()
     {
         $selectedProductList = [];
 
-        foreach ($this->selectedProducts as $productId => $isSelected) {
+        foreach ($this->selectedProducts as $cartId => $isSelected) {
             if ($isSelected) {
-                $product = carts::find($productId);
-                if ($product) {
-                    $selectedProductList[] = $product->productname;
+                $cartItem = carts::where('id', $cartId)
+                                 ->where('user_id', auth()->id())
+                                 ->with('product')
+                                 ->first();
+
+                if ($cartItem && $cartItem->product) {
+                    $selectedProductList[] = $cartItem;
                 }
             }
         }
 
         return $selectedProductList;
     }
+
 
 protected function resetSelectedProducts()
 {
@@ -189,11 +260,12 @@ protected function resetTotalPrice()
 
 protected function deleteSelectedProducts()
 {
-    foreach ($this->selectedProducts as $productId => $isSelected) {
+    foreach ($this->selectedProducts as $cartId => $isSelected) {
         if ($isSelected) {
-            carts::find($productId)->delete();
+            carts::where('id', $cartId)->where('user_id', auth()->id())->delete();
         }
     }
 }
+
 
 }

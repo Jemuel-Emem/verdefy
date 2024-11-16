@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Livewire\User;
-
+use App\Models\Cart as carts;
 use App\Models\Products as pro;
 use App\Models\comments;
 use Livewire\Component;
@@ -54,10 +54,36 @@ class Products extends Component
     public function asss(){
         $this->resetPage();
     }
+    public function add($id){
+        $product = pro::find($id);
 
-    public function add($id)
-    {
-        // Add to cart logic
+    if($product){
+        $product = pro::find($id);
+
+    if ($product) {
+
+        if (auth()->check()) {
+            $user = auth()->user();
+
+            carts::create([
+                'user_id'      => $user->id,
+                'product_id'  => $product->id,
+
+            ]);
+
+            $this->resetPage();
+
+            $this->dialog([
+                'title'       => 'Added to cart',
+                'description' => 'The product was added to cart',
+                'icon'        => 'success',
+            ]);
+        } else {
+
+        }
+    }
+
+    }
     }
 }
 

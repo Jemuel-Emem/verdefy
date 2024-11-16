@@ -14,11 +14,18 @@ class Products extends Model
         'description',
         'stocks',
         'photo',
+        'total_sold'
 
     ];
     public function comments()
     {
         return $this->hasMany(comments::class, 'order_id');
     }
+
+    public function carts()
+{
+    return $this->hasMany(Cart::class, 'product_id');
+}
+
 
 }
