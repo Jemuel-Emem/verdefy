@@ -19,13 +19,16 @@ class comments extends Model
 
     public function comments()
     {
-        return $this->hasMany(comments::class, 'product_id');
+        return $this->hasMany(comments::class, 'order_id');
     }
-
-    public function order()
-    {
-        return $this->belongsTo(Deliverysched::class, 'order_id');
-    }
+public function order()
+{
+    return $this->belongsTo(Order::class, 'order_id');  // Assuming order_id is the foreign key
+}
+    // public function order()
+    // {
+    //     return $this->belongsTo(Deliverysched::class, 'order_id');
+    // }
 
     public function user()
     {

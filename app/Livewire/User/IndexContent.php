@@ -4,6 +4,7 @@ namespace App\Livewire\User;
 
 use App\Models\Products as pro;
 use App\Models\comments as Rate;
+use App\Models\soldproduct;
 use App\Models\Cart as carts;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -18,33 +19,83 @@ class IndexContent extends Component
 
     public function render()
     {
+        $search = '%' . $this->search . '%';
 
-        $search = '%' .$this->search. '%';
-
-        $product = pro::withAvg('comments', 'rate')
+        // Fetch products with related sold products and comments data
+        $products = pro::with('soldproducts', 'comments')  // Load sold products and comments data
                       ->where('productname', 'like', $search)
                       ->paginate(3);
 
+        // Loop through each product
+        foreach ($products as $cot) {
 
-        foreach ($product as $cot) {
+            // Calculate the average rate from the comments table
+            $averageRate = $this->getAverageRate($cot->id);
 
-            $cot->recommendation = $this->getRecommendationBasedOnRate($cot->comments_avg_rate);
+            // Calculate the total sold quantity from the soldproduct table
+            $totalSold = $this->getTotalSold($cot->id);
+
+            // Add recommendation based on rate and total sold
+            $cot->recommendation = $this->getRecommendationBasedOnRate($averageRate, $totalSold);
+
+            // Set the calculated average rate and total sold on the product
+            $cot->comments_avg_rate = $averageRate;  // This will make it available in the view
+            $cot->total_sold = $totalSold;  // This will make total sold available in the view
         }
 
+        // Filter products that are Highly Recommended
+        $highlyRecommendedProducts = $products->getCollection()->filter(function($cot) {
+            return $cot->recommendation === 'Highly Recommended';
+        });
+
+        // Manually paginate the filtered collection
+        $highlyRecommendedProducts = new \Illuminate\Pagination\LengthAwarePaginator(
+            $highlyRecommendedProducts,
+            $products->total(),
+            $products->perPage(),
+            $products->currentPage(),
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
+
         return view('livewire.user.index-content', [
-            'product' => $product,
+            'product' => $highlyRecommendedProducts,
         ]);
     }
 
 
-    public function getRecommendationBasedOnRate($rate)
+
+
+
+    public function getAverageRate($productId)
+    {
+        // Ensure you're using the correct field for the relation between comments and products
+        $averageRate = Rate::where('order_id', $productId)->avg('rate');  // Calculate the average rate based on the correct column
+        return $averageRate;
+    }
+
+    // Get the total quantity sold for a specific product from the soldproduct table
+    public function getTotalSold($productId)
+    {
+        // Ensure you're summing the total sold correctly
+        $totalSold = soldproduct::where('product_id', $productId)->sum('total_sold');  // Sum the sold quantities
+        return $totalSold;
+    }
+
+
+    public function getRecommendationBasedOnRate($rate, $totalSold)
     {
 
-        if ($rate >= 4.5) {
+        if ($rate >= 4.5 && $totalSold >= 100) {
             return 'Highly Recommended';
-        } elseif ($rate >= 3.5) {
+        }
+
+
+        elseif ($rate >= 3.5 && $totalSold >= 50) {
             return 'Recommended';
-        } else {
+        }
+
+
+        else {
             return 'Less Recommended';
         }
     }
@@ -57,11 +108,10 @@ class IndexContent extends Component
             if (auth()->check()) {
                 $user = auth()->user();
 
+
                 carts::create([
-                    'user_id'      => $user->id,
-                    'productname'  => $product->productname,
-                    'productprice' => $product->productprice,
-                    'photo'        => $product->photo,
+                    'user_id'     => $user->id,
+                    'product_id'   => $product->id,
                 ]);
 
                 $this->resetPage();
@@ -71,8 +121,6 @@ class IndexContent extends Component
                     'description' => 'The product was added to cart',
                     'icon'        => 'success',
                 ]);
-            } else {
-
             }
         }
     }

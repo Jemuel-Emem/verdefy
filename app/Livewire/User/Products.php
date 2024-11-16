@@ -20,11 +20,10 @@ class Products extends Component
     public $search;
     public $showModal = false;
 
-    // Fields for new comments
+
     public $rate;
     public $comment;
 
-    // Render method to fetch products
     public function render()
     {
         $search = '%' . $this->search . '%';
@@ -35,7 +34,7 @@ class Products extends Component
         ]);
     }
 
-    // Method to show comments for a specific product
+
     public function showComments($productId)
     {
         $product = Pro::find($productId);
@@ -43,7 +42,7 @@ class Products extends Component
         if ($product) {
             $this->selectedProduct = $product;
 
-            // Fetch only the comments related to the selected product
+
             $this->comments = Comments::where('order_id', $productId)
                 ->with('user')
                 ->latest()
@@ -53,13 +52,13 @@ class Products extends Component
         }
     }
 
-    // Method to reset pagination when searching
+
     public function asss()
     {
         $this->resetPage();
     }
 
-    // Method to add a product to the cart
+
     public function add($id)
     {
         $product = Pro::find($id);
@@ -82,13 +81,13 @@ class Products extends Component
         }
     }
 
-    // Method to submit a new comment and rating
+
     public function submitComment()
     {
         if (auth()->check() && $this->selectedProduct) {
             $user = auth()->user();
 
-            // Validate input
+          
             $this->validate([
                 'rate' => 'required|integer|min:1|max:5',
                 'comment' => 'required|string|max:255',

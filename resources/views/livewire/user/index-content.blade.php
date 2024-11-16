@@ -33,16 +33,17 @@
                         Rating: {{ number_format($cot->comments_avg_rate, 1) }} / 5
                     </span>
 
+
                     <p class="text-green-300">{{ $cot->recommendation }}
                 </div>
             </div>
 
-            <x-slot name="footer">
+            {{-- <x-slot name="footer">
                 <div class="flex justify-between items-center p-4 bg-green-900 rounded-b-lg">
                     <span class="text-yellow-300 font-semibold text-lg">{{ $cot->productprice }} Php</span>
                     <x-button label="Add to Cart" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-300" wire:click="add({{ $cot->id }})"/>
                 </div>
-            </x-slot>
+            </x-slot> --}}
         </x-card>
         @endforeach
     </div>

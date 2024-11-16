@@ -4,7 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Order as Orders;
 use App\Models\Products;
-use App\Models\Deliverysched as DS;
+use App\Models\soldproduct;
 use App\Models\User;
 use WireUi\Traits\Actions;
 use Livewire\WithPagination;
@@ -221,12 +221,62 @@ public function render()
     //     }
     // }
 
+    // public function confirmOrder($orderId)
+    // {
+
+    //     $orders = Orders::where('order_id', $orderId)->get();
+
+
+    //     if ($orders->isEmpty()) {
+    //         $this->dialog()->show([
+    //             'title' => 'Error',
+    //             'description' => 'Order not found.',
+    //             'icon' => 'error',
+    //         ]);
+    //         return;
+    //     }
+
+    //     foreach ($orders as $order) {
+
+    //         if ($order->status !== 'Pending') {
+    //             $this->dialog()->show([
+    //                 'title' => 'Error',
+    //                 'description' => 'This order has already been confirmed or processed.',
+    //                 'icon' => 'error',
+    //             ]);
+    //             return;
+    //         }
+
+
+    //         $order->status = 'To Deliver';
+    //         $order->deliverydate = now()->addDays(3);
+    //         $order->save();
+
+
+    //         $product = $order->product;
+    //         if ($product) {
+    //             $product->update([
+    //                 'total_sold' => $product->total_sold + $order->quantity,
+    //                 'stock' => $product->stock - $order->quantity,
+    //             ]);
+    //         }
+    //     }
+
+
+    //     $this->dialog()->show([
+    //         'title' => 'Order Confirmed',
+    //         'description' => 'The order has been successfully confirmed and a delivery schedule set.',
+    //         'icon' => 'success',
+    //     ]);
+    // }
+
+
     public function confirmOrder($orderId)
     {
-        // Fetch the order by order_id using the correct model alias
+        // Fetch orders with the given order_id
         $orders = Orders::where('order_id', $orderId)->get();
 
-        // If no orders are found, show an error
+        // Check if any orders were found
         if ($orders->isEmpty()) {
             $this->dialog()->show([
                 'title' => 'Error',
@@ -237,7 +287,7 @@ public function render()
         }
 
         foreach ($orders as $order) {
-            // Ensure the order is in the 'Pending' status before confirmation
+            // Check if the order is already confirmed or processed
             if ($order->status !== 'Pending') {
                 $this->dialog()->show([
                     'title' => 'Error',
@@ -247,30 +297,38 @@ public function render()
                 return;
             }
 
-            // Confirm the order and set the delivery date
+            // Update the order status to 'To Deliver' and set delivery date
             $order->status = 'To Deliver';
             $order->deliverydate = now()->addDays(3);
             $order->save();
 
-            // Update the product stock and total sold
+            // Get the associated product
             $product = $order->product;
             if ($product) {
+                // Update product details (total sold and stock)
                 $product->update([
                     'total_sold' => $product->total_sold + $order->quantity,
-                    'stock' => $product->stock - $order->quantity,
+                    'stock'      => $product->stock - $order->quantity,
+                ]);
+
+
+                \App\Models\SoldProduct::create([
+                    'user_id'    => $order->user_id,
+                    'product_id' => $order->product_id,
+                    'quantity'   => $order->quantity,
+                    'total_sold' => $order->quantity,
+                    'order_id'   => $order->order_id,
                 ]);
             }
         }
 
-        // Show a success dialog
+
         $this->dialog()->show([
             'title' => 'Order Confirmed',
             'description' => 'The order has been successfully confirmed and a delivery schedule set.',
             'icon' => 'success',
         ]);
     }
-
-
 
     public function markAsDelivered($orderId)
     {

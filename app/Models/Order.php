@@ -23,6 +23,8 @@ class Order extends Model
     // {
     //     return $this->belongsToMany(User::class, 'user_id');
     // }
+
+
     public function comments()
     {
         return $this->hasMany(comments::class, 'order_id');

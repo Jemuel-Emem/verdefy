@@ -15,4 +15,11 @@ class soldproduct extends Model
 
 
     ];
+
+
+public function product()
+{
+    return $this->belongsTo(Products::class, 'product_id'); // assuming 'product_id' is the foreign key
+}
+
 }

@@ -17,10 +17,22 @@ class Products extends Model
         'total_sold'
 
     ];
-    public function comments()
-    {
-        return $this->hasMany(comments::class, 'order_id');
-    }
+
+    // In Product.php (Product model)
+public function comments()
+{
+    return $this->hasManyThrough(comments::class, Order::class, 'product_id', 'order_id');
+}
+
+    public function soldProducts()
+{
+    return $this->hasMany(SoldProduct::class, 'product_id');
+}
+
+    // public function comments()
+    // {
+    //     return $this->hasMany(comments::class, 'order_id');
+    // }
 
     public function carts()
 {
