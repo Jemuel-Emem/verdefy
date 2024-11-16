@@ -113,7 +113,7 @@
         </div>
     </nav>
 
-    <div class="p-8">
+    <div class="">
         <main class="border border-dark-green rounded-lg dark:border-gray-700">
             {{ $slot }}
         </main>

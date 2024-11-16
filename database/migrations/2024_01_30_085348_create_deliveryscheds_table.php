@@ -14,11 +14,8 @@ return new class extends Migration
         Schema::create('deliveryscheds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained();
-            $table->string('name');
-            $table->string('address');
-            $table->string('phonenumber');
-            $table->string('productlist');
-            $table->string('totalorder');
+            $table->foreignId('product_id')->nullable()->constrained('products');
+            $table->string('order_id');
             $table->date('deliverydate')->nullable();
             $table->string('status')->default("Pending");
             $table->timestamps();

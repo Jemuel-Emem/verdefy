@@ -14,6 +14,7 @@ class comments extends Model
         'rate',
         'user_id',
         'comment',
+        'name'
     ];
 
     public function comments()

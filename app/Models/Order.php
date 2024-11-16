@@ -14,6 +14,8 @@ class Order extends Model
         'totalorder',
         'quantity',
         'order_id',
+        'deliverydate',
+        'status'
     ];
     protected $table = 'orders';
 
@@ -26,6 +28,11 @@ class Order extends Model
         return $this->hasMany(comments::class, 'order_id');
     }
 
+public function products()
+{
+    return $this->belongsToMany(Products::class)->withPivot('quantity');
+}
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -36,7 +43,10 @@ class Order extends Model
         return $this->belongsTo(Products::class);
     }
 
-
+    public function deliverySchedule()
+    {
+        return $this->hasOne(Deliverysched::class, 'order_id', 'order_id');
+    }
 // public function product()
 // {
 //     return $this->belongsTo(Products::class, 'product_id');

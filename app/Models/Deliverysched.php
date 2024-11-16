@@ -9,7 +9,7 @@ class Deliverysched extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id', 'name', 'address', 'phonenumber', 'productlist', 'totalorder', 'status', 'deliverydate',
+        'user_id','order_id', 'status', 'deliverydate', 'product_id',
     ];
 
 
@@ -18,15 +18,26 @@ public function carts()
         return $this->belongsTo(Cart::class, 'id');
 }
 
-    public function user()
+//     public function user()
+// {
+//     return $this->belongsToMany(User::class, 'user_id');
+// }
+public function user()
 {
-    return $this->belongsToMany(User::class, 'user_id');
+    return $this->belongsTo(User::class);
 }
-
 public function comments()
 {
     return $this->hasMany(comments::class, 'order_id');
 }
 
+public function order()
+{
+    return $this->belongsTo(Order::class, 'order_id', 'order_id');
+}
+public function product()
+{
+    return $this->belongsTo(Products::class);
+}
 
 }

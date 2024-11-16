@@ -90,9 +90,9 @@
         </table>
     </div>
 
-    <div class="flex justify-end mr-12">
+    {{-- <div class="flex justify-end mr-12">
         <x-button secondary label="Print" class="w-64" id="printButton"/>
-    </div>
+    </div> --}}
 </div>
 
     <x-modal wire:model.defer="open_modal">

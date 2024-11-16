@@ -18,11 +18,37 @@ class Dileverysched extends Component
     public $edit_modal = false;
     public function render()
     {
-        $search = '%' .$this->search. '%';
-        return view('livewire.admin.dileverysched',[
-            'product' => ds::where('name', 'like', $search)->paginate(10),
+        $search = '%' . $this->search . '%';
+
+
+        $schedules = ds::with(['user', 'order'])
+            ->whereHas('user', function ($query) use ($search) {
+                $query->where('name', 'like', $search);
+            })
+            ->orWhereHas('order', function ($query) use ($search) {
+                $query->where('order_id', 'like', $search);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('livewire.admin.dileverysched', [
+            'schedules' => $schedules,
         ]);
 
+
+    }
+    public function markAsDelivered($id)
+    {
+        $schedule = ds::find($id);
+
+        if ($schedule && $schedule->status !== 'Delivered') {
+            $schedule->update(['status' => 'Delivered']);
+
+            $this->notification()->success(
+                $title = 'Delivery Updated',
+                $description = 'The status has been marked as Delivered'
+            );
+        }
     }
 
     public function asss(){

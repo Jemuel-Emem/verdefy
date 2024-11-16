@@ -11,6 +11,8 @@
                         <th scope="col" class="px-6 py-3">Order List</th>
                         <th scope="col" class="px-6 py-3">Quantity</th>
                         <th scope="col" class="px-6 py-3">Total Order</th>
+                        <th scope="col" class="px-6 py-3">Delivery Date</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
                         <th scope="col" class="px-6 py-3">Action</th>
                     </tr>
                 </thead>
@@ -32,11 +34,28 @@
 
                         <td class="px-6 py-4">{{ $orderGroup['quantity'] }}</td>
                         <td class="px-6 py-4">{{ $orderGroup['totalorder'] }}</td>
+                        <td class="px-6 py-4">{{ $orderGroup['orders']->first()->deliverydate }}</td>
+                        <td class="px-6 py-4">{{ $orderGroup['orders']->first()->status }}</td>
+
+                        <td class="px-6 py-4 flex gap-2">
+
+                            <button
+                                wire:click="confirmOrder('{{ $orderGroup['order_id'] }}')"
+                                class="@if ($orderGroup['orders']->first()->status !== 'Pending') bg-gray-400 text-gray-600 cursor-not-allowed @else bg-green-500 text-white @endif px-4 py-2 rounded"
+                                @if ($orderGroup['orders']->first()->status !== 'Pending') disabled @endif>
+                                Confirm
+                            </button>
 
 
-                        <td class="px-6 py-4">
-                            <button wire:click="confirmOrder({{ $orderGroup['orders']->first()->id }})">Confirm</button>
+                            <button
+                                wire:click="markAsDelivered('{{ $orderGroup['order_id'] }}')"
+                                class="@if ($orderGroup['orders']->first()->status === 'Delivered') bg-gray-400 text-gray-600 cursor-not-allowed @else bg-blue-500 text-white @endif px-4 py-2 rounded"
+                                @if ($orderGroup['orders']->first()->status === 'Delivered' || $orderGroup['orders']->first()->status === 'Pending') disabled @endif>
+                                Delivered
+                            </button>
                         </td>
+
+
                     </tr>
                 @endforeach
             </tbody>
@@ -84,9 +103,9 @@
 
 
 
-    <div class="flex justify-end mr-12">
+    {{-- <div class="flex justify-end mr-12">
         <x-button secondary label="Print" class="w-64" id="printButton"/>
-    </div>
+    </div> --}}
 
     <script>
         function printPage() {
