@@ -1,13 +1,13 @@
 <div class="text-gray-100 p-8">
     <div class="flex justify-center items-center gap-4 mb-8">
         <div class="flex items-center gap-2 p-4">
-            <x-input class="w-full md:w-80" placeholder="Search products..." wire:model="search" style="width: 300px;" />
+            <x-input class="text-black" placeholder="Search products..." wire:model="search" style="width: 300px;"  />
             <x-button label="Search" wire:click.prevent="asss" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md" />
         </div>
     </div>
 
-    <!-- Products Grid -->
-    <div class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-10">
+
+    <div class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-10 ">
         @foreach($product as $cot)
         <x-card class="w-full max-w-xs bg-gradient-to-b from-green-900 to-green-800 border border-green-700 shadow-xl rounded-lg hover:shadow-2xl">
             <div class="relative overflow-hidden rounded-t-lg">

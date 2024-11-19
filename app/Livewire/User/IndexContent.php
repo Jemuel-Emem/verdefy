@@ -63,21 +63,17 @@ class IndexContent extends Component
     }
 
 
-
-
-
     public function getAverageRate($productId)
     {
-        // Ensure you're using the correct field for the relation between comments and products
-        $averageRate = Rate::where('order_id', $productId)->avg('rate');  // Calculate the average rate based on the correct column
+
+        $averageRate = Rate::where('order_id', $productId)->avg('rate');
         return $averageRate;
     }
 
-    // Get the total quantity sold for a specific product from the soldproduct table
-    public function getTotalSold($productId)
+        public function getTotalSold($productId)
     {
-        // Ensure you're summing the total sold correctly
-        $totalSold = soldproduct::where('product_id', $productId)->sum('total_sold');  // Sum the sold quantities
+
+        $totalSold = soldproduct::where('product_id', $productId)->sum('total_sold');
         return $totalSold;
     }
 

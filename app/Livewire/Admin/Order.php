@@ -287,7 +287,7 @@ public function render()
         }
 
         foreach ($orders as $order) {
-            // Check if the order is already confirmed or processed
+
             if ($order->status !== 'Pending') {
                 $this->dialog()->show([
                     'title' => 'Error',
@@ -297,15 +297,15 @@ public function render()
                 return;
             }
 
-            // Update the order status to 'To Deliver' and set delivery date
+
             $order->status = 'To Deliver';
             $order->deliverydate = now()->addDays(3);
             $order->save();
 
-            // Get the associated product
+
             $product = $order->product;
             if ($product) {
-                // Update product details (total sold and stock)
+
                 $product->update([
                     'total_sold' => $product->total_sold + $order->quantity,
                     'stock'      => $product->stock - $order->quantity,

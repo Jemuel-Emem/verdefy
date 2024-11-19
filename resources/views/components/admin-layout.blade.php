@@ -102,7 +102,7 @@
                 <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 dark:bg-gray-800">
                     <li><a href="{{ route('customers') }}" class="hover-dark-green p-2">Customers</a></li>
                     <li><a href="{{ route('products') }}" class="hover-dark-green p-2">Products</a></li>
-                    <li><a href="{{ route('dileverysched') }}" class="hover-dark-green p-2">Delivery Schedule</a></li>
+                    {{-- <li><a href="{{ route('dileverysched') }}" class="hover-dark-green p-2">Delivery Schedule</a></li> --}}
                     <li><a href="{{ route('order') }}" class="hover-dark-green p-2">Orders</a></li>
                     {{-- <li><a href="{{ route('customizes') }}" class="hover-dark-green p-2">Customize Order</a></li> --}}
                     <li><a href="{{ route('admin-dashboard') }}" class="hover-dark-green p-2">Home</a></li>
